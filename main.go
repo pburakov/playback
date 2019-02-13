@@ -48,6 +48,7 @@ func initReader(c *config.ProgramConfig) file.Reader {
 	}
 	if e != nil {
 		util.Fatal(e)
+		return nil
 	}
 	return r
 }
@@ -60,12 +61,14 @@ func initTopic(c *config.ProgramConfig) *pubsub.Topic {
 	p, e := pubsub.NewClient(ctx1, c.ProjectID)
 	if e != nil {
 		util.Fatal(e)
+		return nil
 	}
 	t := p.Topic(c.Topic)
 	ctx2, c2 := context.WithTimeout(context.Background(), c.Timeout)
 	defer c2()
 	if b, e := t.Exists(ctx2); e != nil || !b {
 		util.Fatal(errors.New("topic does not exist or unexpected pubsub error"))
+		return nil
 	}
 	return t
 }
@@ -87,6 +90,7 @@ func initPlayback(in file.Reader, action func(time.Time, []byte), c *config.Prog
 		runner.PlayRelative(in, action, c.Window, c.MaxJitterMSec)
 	default:
 		util.Fatal(fmt.Errorf("unknown mode %d", c.Mode))
+		return
 	}
 
 	log.Print("Playback stopped")
