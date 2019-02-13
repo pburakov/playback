@@ -31,7 +31,7 @@ const (
 	DefaultTimeoutMSec = 5000
 	DefaultWindowMSec  = 250
 	DefaultJitterMSec  = 150
-	DefaultDelayMSec   = 500
+	DefaultDelayMSec   = 1000
 )
 
 // ProgramConfig hold program runtime settings
