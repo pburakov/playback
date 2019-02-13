@@ -37,6 +37,7 @@ func PlayRelative(in file.Reader, action func(time.Time, []byte), lh time.Durati
 		}
 		if e != nil {
 			util.Fatal(e)
+			return
 		}
 		if delta == 0 {
 			delta = time.Now().Sub(ts)
@@ -81,6 +82,7 @@ func PlayPaced(in file.Reader, action func(time.Time, []byte), del time.Duration
 		}
 		if e != nil {
 			util.Fatal(e)
+			return
 		}
 
 		wg.Add(1)
@@ -112,6 +114,7 @@ func PlayInstant(in file.Reader, action func(time.Time, []byte)) {
 		}
 		if e != nil {
 			util.Fatal(e)
+			return
 		}
 
 		wg.Add(1)
