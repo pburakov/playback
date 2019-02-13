@@ -65,6 +65,7 @@ func Init() *ProgramConfig {
 
 	if len(*fProjectID) == 0 || len(*fTopic) == 0 {
 		util.Fatal(errors.New("invalid project id or topic name"))
+		return nil
 	}
 
 	if len(*fColName) == 0 {
@@ -74,6 +75,7 @@ func Init() *ProgramConfig {
 	fileType, e := validateFile(*fPath)
 	if e != nil {
 		util.Fatal(e)
+		return nil
 	}
 	return &ProgramConfig{
 		Mode:          Mode(*fMode),
