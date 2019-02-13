@@ -75,17 +75,17 @@ func initTopic(c *config.ProgramConfig) *pubsub.Topic {
 
 // initPlayback initiates configured playback mode. Log messages are printed before
 // and after the playback is performed.
-func initPlayback(in file.Reader, action func(time.Time, []byte), c *config.ProgramConfig) {
+func initPlayback(in file.Reader, out func(string, []byte), c *config.ProgramConfig) {
 	switch c.Mode {
 	case config.Instant:
 		log.Printf("Starting playback in instant mode...")
-		runner.PlayInstant(in, action)
+		runner.PlayInstant(in, out)
 	case config.Paced:
 		log.Printf("Starting playback in paced mode...")
-		runner.PlayPaced(in, action, c.Delay, c.MaxJitterMSec)
+		runner.PlayPaced(in, out, c.Delay, c.MaxJitterMSec)
 	case config.Relative:
 		log.Printf("Starting playback in relative mode...")
-		runner.PlayRelative(in, action, c.Window, c.MaxJitterMSec)
+		runner.PlayRelative(in, out, c.Window, c.MaxJitterMSec)
 	default:
 		util.Fatal(fmt.Errorf("unknown mode %d", c.Mode))
 		return

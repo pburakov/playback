@@ -8,7 +8,9 @@ import (
 	"playback/config"
 	"playback/file"
 	"playback/util"
+	"strconv"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -22,7 +24,7 @@ import (
 //
 // The parameters are the input reader implementation, action function, lookahead
 // duration value and a maximum jitter setting (in milliseconds).
-func PlayRelative(in file.Reader, action func(time.Time, []byte), lh time.Duration, mjMSec int) {
+func PlayRelative(in file.Reader, action func(string, []byte), lh time.Duration, mjMSec int) {
 	delta := time.Duration(0)
 	boundary := time.Now().Add(lh)
 
@@ -31,7 +33,7 @@ func PlayRelative(in file.Reader, action func(time.Time, []byte), lh time.Durati
 	var wg sync.WaitGroup
 
 	for {
-		ts, d, e := in.ReadLine()
+		ts, d, e := in.ReadLineWithTS()
 		if e == io.EOF {
 			break
 		}
@@ -54,7 +56,7 @@ func PlayRelative(in file.Reader, action func(time.Time, []byte), lh time.Durati
 
 		wg.Add(1)
 		go func() {
-			action(ts, d)
+			action("ts "+ts.String(), d)
 			wg.Done()
 		}()
 	}
@@ -69,14 +71,15 @@ func PlayRelative(in file.Reader, action func(time.Time, []byte), lh time.Durati
 //
 // The parameters are the input reader implementation, action function, delay
 // duration value and a maximum jitter setting (in milliseconds).
-func PlayPaced(in file.Reader, action func(time.Time, []byte), del time.Duration, mjMSec int) {
+func PlayPaced(in file.Reader, action func(string, []byte), del time.Duration, mjMSec int) {
 	var wg sync.WaitGroup
+	var i uint64 = 0
 
 	log.Printf("Base delay between messages is %q with max jitter %q",
 		del, util.MSecToDuration(mjMSec))
 
 	for {
-		ts, d, e := in.ReadLine()
+		d, e := in.ReadLine()
 		if e == io.EOF {
 			break
 		}
@@ -86,8 +89,10 @@ func PlayPaced(in file.Reader, action func(time.Time, []byte), del time.Duration
 		}
 
 		wg.Add(1)
+		atomic.AddUint64(&i, 1)
+
 		go func() {
-			action(ts, d)
+			action(strconv.FormatUint(i, 10), d)
 			wg.Done()
 		}()
 
@@ -104,11 +109,12 @@ func PlayPaced(in file.Reader, action func(time.Time, []byte), del time.Duration
 // This method blocks until all lines and all spawned actions are completed.
 //
 // The parameters are the input reader implementation and action function.
-func PlayInstant(in file.Reader, action func(time.Time, []byte)) {
+func PlayInstant(in file.Reader, action func(string, []byte)) {
 	var wg sync.WaitGroup
+	var i uint64 = 0
 
 	for {
-		ts, d, e := in.ReadLine()
+		d, e := in.ReadLine()
 		if e == io.EOF {
 			break
 		}
@@ -118,31 +124,33 @@ func PlayInstant(in file.Reader, action func(time.Time, []byte)) {
 		}
 
 		wg.Add(1)
-		go func() {
-			action(ts, d)
+		atomic.AddUint64(&i, 1)
+
+		go func(i uint64) {
+			action(strconv.FormatUint(i, 10), d)
 			wg.Done()
-		}()
+		}(i)
 	}
 	wg.Wait()
 }
 
 // Output returns preconfigured publishing action function.
-func Output(t *pubsub.Topic, c *config.ProgramConfig) func(time.Time, []byte) {
-	return func(ts time.Time, d []byte) {
-		publish(t, ts, d, c.Timeout)
+func Output(t *pubsub.Topic, c *config.ProgramConfig) func(string, []byte) {
+	return func(id string, d []byte) {
+		publish(t, id, d, c.Timeout)
 	}
 }
 
 // publish handles PubSub publishing procedure with logging and allowing errors.
-func publish(t *pubsub.Topic, ts time.Time, d []byte, to time.Duration) {
+func publish(t *pubsub.Topic, id string, d []byte, to time.Duration) {
 	ctx, cancel := context.WithTimeout(context.Background(), to)
 	defer cancel()
 
 	res := t.Publish(ctx, &pubsub.Message{Data: d})
-	id, e := res.Get(ctx)
+	mid, e := res.Get(ctx)
 	if e != nil {
 		log.Printf("Error publishing message: %s", e)
 		return
 	}
-	log.Printf("Published message %q (absolute timestamp %q)", id, ts)
+	log.Printf("Published message id %s (%s)", mid, id)
 }
