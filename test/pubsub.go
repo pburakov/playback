@@ -1,3 +1,4 @@
+// test package provides pubsub testcontainer interface for test runtime.
 package test
 
 import (
@@ -33,6 +34,7 @@ type pubsubWaitingStrategy struct {
 	startupTimeout time.Duration
 }
 
+// WaitUntilReady polls the containerized PubSub API until it is ready for operation.
 func (ws *pubsubWaitingStrategy) WaitUntilReady(ctx context.Context, target wait.StrategyTarget) (err error) {
 	// limit context to startupTimeout
 	ctx, cancelContext := context.WithTimeout(ctx, ws.startupTimeout)

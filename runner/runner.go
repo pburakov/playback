@@ -12,6 +12,16 @@ import (
 	"time"
 )
 
+// PlayRelative sets the window boundary to a lookahead duration value, reads the
+// data from the input file line by line into memory and spawns the given action on
+// the input data. The process is repeated until the EOF is met, or until the first
+// timestamp outside the boundary is found. The thread then waits until the runtime
+// clock is also outside the boundary (adjusted for an arbitrary jitter), shifts
+// the boundary forward by the lookahead duration value and repeats.
+// This method blocks until all lines and all spawned actions are completed.
+//
+// The parameters are the input reader implementation, action function, lookahead
+// duration value and a maximum jitter setting (in milliseconds).
 func PlayRelative(in file.Reader, action func(time.Time, []byte), lh time.Duration, mjMSec int) {
 	delta := time.Duration(0)
 	boundary := time.Now().Add(lh)
@@ -36,7 +46,8 @@ func PlayRelative(in file.Reader, action func(time.Time, []byte), lh time.Durati
 
 		for adjustedTS.After(boundary) {
 			jitter := util.Jitter(mjMSec)
-			<-time.After(boundary.Add(jitter).Sub(time.Now())) // wait until we're outside the window boundary + jitter
+			// wait until we're outside the window boundary + jitter
+			<-time.After(boundary.Add(jitter).Sub(time.Now()))
 			boundary = time.Now().Add(lh)
 		}
 
@@ -49,10 +60,19 @@ func PlayRelative(in file.Reader, action func(time.Time, []byte), lh time.Durati
 	wg.Wait()
 }
 
+// PlayPaced reads the data from the input file line by line into memory
+// and spawns the given action on the input data at a given rate until the EOF
+// is met. The pacing is achieved by waiting the given delay duration
+// between reads.
+// This method blocks until all lines and all spawned actions are completed.
+//
+// The parameters are the input reader implementation, action function, delay
+// duration value and a maximum jitter setting (in milliseconds).
 func PlayPaced(in file.Reader, action func(time.Time, []byte), del time.Duration, mjMSec int) {
 	var wg sync.WaitGroup
 
-	log.Printf("Base delay between messages is %q with max jitter %q", del, util.MSecToDuration(mjMSec))
+	log.Printf("Base delay between messages is %q with max jitter %q",
+		del, util.MSecToDuration(mjMSec))
 
 	for {
 		ts, d, e := in.ReadLine()
@@ -75,6 +95,13 @@ func PlayPaced(in file.Reader, action func(time.Time, []byte), del time.Duration
 	wg.Wait()
 }
 
+// PlayInstant attempts to read all the data from the input file line by
+// line and spawn the given action on the input data. No throttling of limiting
+// is implemented, hence the performance of this method is limited by the IO
+// constraints, allocated memory and available lCPU.
+// This method blocks until all lines and all spawned actions are completed.
+//
+// The parameters are the input reader implementation and action function.
 func PlayInstant(in file.Reader, action func(time.Time, []byte)) {
 	var wg sync.WaitGroup
 
@@ -96,12 +123,14 @@ func PlayInstant(in file.Reader, action func(time.Time, []byte)) {
 	wg.Wait()
 }
 
+// Output returns preconfigured publishing action function.
 func Output(t *pubsub.Topic, c *config.ProgramConfig) func(time.Time, []byte) {
 	return func(ts time.Time, d []byte) {
 		publish(t, ts, d, c.Timeout)
 	}
 }
 
+// publish handles PubSub publishing procedure with logging and allowing errors.
 func publish(t *pubsub.Topic, ts time.Time, d []byte, to time.Duration) {
 	ctx, cancel := context.WithTimeout(context.Background(), to)
 	defer cancel()
