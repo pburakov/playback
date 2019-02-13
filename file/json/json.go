@@ -31,13 +31,13 @@ func Init(path string, colName string, tsFormat string) (*JSONReader, error) {
 	return &JSONReader{r: r, p: &properties{tsColumn: colName, tsFormat: tsFormat}}, nil
 }
 
-func (j *JSONReader) ReadLine() (time.Time, []byte, error) {
-	line, _, e := j.r.ReadLine()
+func (j *JSONReader) ReadLine() (ts time.Time, data []byte, e error) {
+	data, _, e = j.r.ReadLine()
 	if e != nil {
 		return util.DefaultTimestamp(), nil, e
 	}
 	m := make(map[string]interface{})
-	if e := json.Unmarshal(line, &m); e != nil {
+	if e := json.Unmarshal(data, &m); e != nil {
 		return util.DefaultTimestamp(), nil, e
 	}
 	if v, found := m[j.p.tsColumn]; !found {
@@ -47,7 +47,7 @@ func (j *JSONReader) ReadLine() (time.Time, []byte, error) {
 			return util.DefaultTimestamp(), nil, fmt.Errorf("unexpected timestamp field %q", v)
 		} else {
 			ts, e := time.Parse(j.p.tsFormat, t)
-			return ts, line, e
+			return ts, data, e
 		}
 	}
 }

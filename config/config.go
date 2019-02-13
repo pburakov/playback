@@ -34,6 +34,7 @@ const (
 	DefaultDelayMSec   = 500
 )
 
+// ProgramConfig hold program runtime settings
 type ProgramConfig struct {
 	Mode          Mode
 	FilePath      string
@@ -56,8 +57,8 @@ func Init() *ProgramConfig {
 	fTSFormat := flag.String("f", DefaultTSFormat, "Timestamp format")
 	fProjectID := flag.String("p", "", "Google Cloud project id")
 	fTopic := flag.String("t", "", "Output topic")
-	fWindowMSec := flag.Int("w", DefaultWindowMSec, "Event accumulation window (milliseconds)")
-	fJitter := flag.Int("j", DefaultJitterMSec, "Max jitter (milliseconds)")
+	fWindow := flag.Int("w", DefaultWindowMSec, "Event accumulation window for relative playback (milliseconds)")
+	fJitter := flag.Int("j", DefaultJitterMSec, "Max jitter for relative and paced playback (milliseconds)")
 	fTimeout := flag.Int("o", DefaultTimeoutMSec, "Publish request timeout (milliseconds)")
 	fDelay := flag.Int("d", DefaultDelayMSec, "Delay between publish requests for paced playback (milliseconds)")
 	flag.Parse()
@@ -82,13 +83,14 @@ func Init() *ProgramConfig {
 		TSFormat:      *fTSFormat,
 		ProjectID:     *fProjectID,
 		Topic:         *fTopic,
-		Window:        time.Duration(*fWindowMSec * 1000000),
+		Window:        time.Duration(*fWindow * 1000000),
 		Timeout:       time.Duration(*fTimeout * 1000000),
 		Delay:         time.Duration(*fDelay * 1000000),
 		MaxJitterMSec: *fJitter,
 	}
 }
 
+// validateFile checks if file exists and validates file extension
 func validateFile(f string) (FileType, error) {
 	if len(f) == 0 {
 		return "", errors.New("no input file")
