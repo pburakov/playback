@@ -39,7 +39,7 @@ func Init(path string, colName string, tsFormat string) (*AvroReader, error) {
 	return &AvroReader{r: r, p: &properties{tsColumn: colName, tsFormat: tsFormat}}, nil
 }
 
-func (a *AvroReader) ReadLine() (ts time.Time, data []byte, e error) {
+func (a *AvroReader) ReadLineWithTS() (ts time.Time, data []byte, e error) {
 	s := a.r.Scan()
 	if s == false {
 		return util.DefaultTimestamp(), nil, io.EOF
@@ -58,6 +58,18 @@ func (a *AvroReader) ReadLine() (ts time.Time, data []byte, e error) {
 		data, e := a.r.Codec().BinaryFromNative(nil, r)
 		return ts, data, e
 	}
+}
+
+func (a *AvroReader) ReadLine() (data []byte, e error) {
+	s := a.r.Scan()
+	if s == false {
+		return nil, io.EOF
+	}
+	r, e := a.r.Read()
+	if e != nil {
+		return nil, e
+	}
+	return a.r.Codec().BinaryFromNative(nil, r)
 }
 
 // extractTimestamp makes best guess about timestamp type and deserializes it.
