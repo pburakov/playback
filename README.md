@@ -1,8 +1,6 @@
 # playback
 
-CLI tool for "replaying" events from the local file into PubSub topic.
-
-## Description
+CLI tool for "replaying" events from local file into PubSub topic.
 
 ## Usage
 
@@ -26,7 +24,7 @@ $ ./playback --help
 
 Playback tool provides 3 modes of operation: paced (default), instant and relative. 
 
-- In **paced mode**, messages are played back one by one at configurable equal intervals. Original event timestamp is bypassed. Useful for limiting throughput and maintaining order.  
+- In **paced mode**, messages are played back one by one at configurable equal intervals. Original event timestamp is bypassed. Useful for limiting throughput and maintaining order of events in the output.
 
 - In **relative mode** the relative difference between event timestamps is maintained. This mode is useful for emulating or replaying real-world traffic. Relative mode is is comparatively more expensive, since the input row has to be first parsed and searched for the timestamp.   
 
@@ -56,7 +54,7 @@ _More detailed info to be added_
 Playback tool supports JSON (newline delimited), CSV and Avro files, typically supported by Google BigQuery and Dataflow stack.
 
 Intended and typical use case for the Playback tool include:
- - replaying data stored in BigQuery tables;
+ - streaming data stored in BigQuery tables into Pub/Sub;
  - replaying [Dataflow streams](https://console.cloud.google.com/dataflow/createjob) typically set up using the "Cloud Pub/Sub to Text Files on Cloud Storage" template;
  - A/B testing for streaming pipelines and data injestion services.    
 
