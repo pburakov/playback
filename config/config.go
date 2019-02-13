@@ -57,10 +57,10 @@ func Init() *ProgramConfig {
 	fTSFormat := flag.String("f", DefaultTSFormat, "Timestamp format")
 	fProjectID := flag.String("p", "", "Google Cloud project id")
 	fTopic := flag.String("t", "", "Output topic")
-	fWindow := flag.Int("w", DefaultWindowMSec, "Event accumulation window for relative playback (milliseconds)")
-	fJitter := flag.Int("j", DefaultJitterMSec, "Max jitter for relative and paced playback (milliseconds)")
-	fTimeout := flag.Int("o", DefaultTimeoutMSec, "Publish request timeout (milliseconds)")
-	fDelay := flag.Int("d", DefaultDelayMSec, "Delay between publish requests for paced playback (milliseconds)")
+	fWindowMSec := flag.Int("w", DefaultWindowMSec, "Event accumulation window for relative playback (milliseconds)")
+	fJitterMSec := flag.Int("j", DefaultJitterMSec, "Max jitter for relative and paced playback (milliseconds)")
+	fTimeoutMSec := flag.Int("o", DefaultTimeoutMSec, "Publish request timeout (milliseconds)")
+	fDelayMSec := flag.Int("d", DefaultDelayMSec, "Delay between publish requests for paced playback (milliseconds)")
 	flag.Parse()
 
 	if len(*fProjectID) == 0 || len(*fTopic) == 0 {
@@ -83,10 +83,10 @@ func Init() *ProgramConfig {
 		TSFormat:      *fTSFormat,
 		ProjectID:     *fProjectID,
 		Topic:         *fTopic,
-		Window:        time.Duration(*fWindow * 1000000),
-		Timeout:       time.Duration(*fTimeout * 1000000),
-		Delay:         time.Duration(*fDelay * 1000000),
-		MaxJitterMSec: *fJitter,
+		Window:        time.Duration(*fWindowMSec * 1000000),
+		Timeout:       time.Duration(*fTimeoutMSec * 1000000),
+		Delay:         time.Duration(*fDelayMSec * 1000000),
+		MaxJitterMSec: *fJitterMSec,
 	}
 }
 
