@@ -32,7 +32,7 @@ func TestPublish(t *testing.T) {
 	success := make(chan bool, 1)
 	go subscribe(t, sub, "foobar", success)
 
-	publish(topic, time.Now(), []byte("foobar"), testTimeout)
+	publish(topic, "baz", []byte("foobar"), testTimeout)
 	waitForDelivery(t, success)
 }
 

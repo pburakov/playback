@@ -15,8 +15,8 @@ type Mode uint
 type FileType string
 
 const (
-	Instant  Mode = 0
-	Paced    Mode = 1
+	Paced    Mode = 0
+	Instant  Mode = 1
 	Relative Mode = 2
 )
 
@@ -30,8 +30,8 @@ const (
 	DefaultTSFormat    = "2006-01-02T15:04:05.999999"
 	DefaultTimeoutMSec = 5000
 	DefaultWindowMSec  = 250
-	DefaultJitterMSec  = 150
-	DefaultDelayMSec   = 500
+	DefaultJitterMSec  = 100
+	DefaultDelayMSec   = 1000
 )
 
 // ProgramConfig hold program runtime settings
@@ -51,29 +51,27 @@ type ProgramConfig struct {
 
 // InitConfig validates inputs and returns completed program configuration. Terminates on validation errors.
 func Init() *ProgramConfig {
-	fMode := flag.Int("m", 0, "Mode: 0 - instant (default), 1 - paced, 2 - relative")
-	fPath := flag.String("i", "", "Path to input file")
-	fColName := flag.String("c", "", "Name of the timestamp column. The input data must be sorted by that column")
-	fTSFormat := flag.String("f", DefaultTSFormat, "Timestamp format")
-	fProjectID := flag.String("p", "", "Google Cloud project id")
-	fTopic := flag.String("t", "", "Output topic")
-	fWindowMSec := flag.Int("w", DefaultWindowMSec, "Event accumulation window for relative playback (milliseconds)")
-	fJitterMSec := flag.Int("j", DefaultJitterMSec, "Max jitter for relative and paced playback (milliseconds)")
-	fTimeoutMSec := flag.Int("o", DefaultTimeoutMSec, "Publish request timeout (milliseconds)")
-	fDelayMSec := flag.Int("d", DefaultDelayMSec, "Delay between publish requests for paced playback (milliseconds)")
+	fMode := flag.Int("m", 0, "Playback mode: 0 - paced, 1 - instant, 2 - relative.")
+	fPath := flag.String("i", "", "Path to input file. Supported formats: JSON (newline delimited), CSV and Avro.")
+	fColName := flag.String("c", "", "Name of the timestamp column for relative playback mode. The input data must be sorted by that column.")
+	fTSFormat := flag.String("f", DefaultTSFormat, "Timestamp format for relative playback mode. Layouts must use the reference time Mon Jan 2 15:04:05 MST 2006 to show the pattern with which to format/parse a given time/string.")
+	fProjectID := flag.String("p", "", "Output Google Cloud project id.")
+	fTopic := flag.String("t", "", "Output PubSub topic.")
+	fWindowMSec := flag.Int("w", DefaultWindowMSec, "Event accumulation window for relative playback mode, in milliseconds. Use higher values if input event distribution on the timeline is sparse, lower values for a more dense event distribution.")
+	fJitterMSec := flag.Int("j", DefaultJitterMSec, "Max jitter for relative and paced playback, in milliseconds.")
+	fTimeoutMSec := flag.Int("o", DefaultTimeoutMSec, "Publish request timeout, in milliseconds.")
+	fDelayMSec := flag.Int("d", DefaultDelayMSec, "Delay between line reads for paced playback, in milliseconds.")
 	flag.Parse()
 
 	if len(*fProjectID) == 0 || len(*fTopic) == 0 {
 		util.Fatal(errors.New("invalid project id or topic name"))
-	}
-
-	if len(*fColName) == 0 {
-		util.Fatal(errors.New("invalid or empty column value"))
+		return nil
 	}
 
 	fileType, e := validateFile(*fPath)
 	if e != nil {
 		util.Fatal(e)
+		return nil
 	}
 	return &ProgramConfig{
 		Mode:          Mode(*fMode),

@@ -48,6 +48,7 @@ func initReader(c *config.ProgramConfig) file.Reader {
 	}
 	if e != nil {
 		util.Fatal(e)
+		return nil
 	}
 	return r
 }
@@ -60,33 +61,34 @@ func initTopic(c *config.ProgramConfig) *pubsub.Topic {
 	p, e := pubsub.NewClient(ctx1, c.ProjectID)
 	if e != nil {
 		util.Fatal(e)
+		return nil
 	}
 	t := p.Topic(c.Topic)
 	ctx2, c2 := context.WithTimeout(context.Background(), c.Timeout)
 	defer c2()
 	if b, e := t.Exists(ctx2); e != nil || !b {
 		util.Fatal(errors.New("topic does not exist or unexpected pubsub error"))
+		return nil
 	}
 	return t
 }
 
 // initPlayback initiates configured playback mode. Log messages are printed before
 // and after the playback is performed.
-func initPlayback(in file.Reader, action func(time.Time, []byte), c *config.ProgramConfig) {
-	log.Print("Starting playback...")
-
+func initPlayback(in file.Reader, out func(string, []byte), c *config.ProgramConfig) {
 	switch c.Mode {
 	case config.Instant:
-		log.Printf("Initilized instant playback mode")
-		runner.PlayInstant(in, action)
+		log.Printf("Starting playback in instant mode...")
+		runner.PlayInstant(in, out)
 	case config.Paced:
-		log.Printf("Initilized paced playback mode")
-		runner.PlayPaced(in, action, c.Delay, c.MaxJitterMSec)
+		log.Printf("Starting playback in paced mode...")
+		runner.PlayPaced(in, out, c.Delay, c.MaxJitterMSec)
 	case config.Relative:
-		log.Printf("Initilized relative playback mode")
-		runner.PlayRelative(in, action, c.Window, c.MaxJitterMSec)
+		log.Printf("Starting playback in relative mode...")
+		runner.PlayRelative(in, out, c.Window, c.MaxJitterMSec)
 	default:
 		util.Fatal(fmt.Errorf("unknown mode %d", c.Mode))
+		return
 	}
 
 	log.Print("Playback stopped")
