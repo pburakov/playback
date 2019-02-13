@@ -50,16 +50,16 @@ func Init(path string, colName string, tsFormat string) (*CSVReader, error) {
 	return &CSVReader{r: r, p: &properties{headers: line, tsColumn: t, tsFormat: tsFormat}}, nil
 }
 
-// ReadLine returns JSON k-v object as bytes
-func (c *CSVReader) ReadLine() (time.Time, []byte, error) {
+// ReadLine returns CSV entry as a serialized JSON k-v object.
+func (c *CSVReader) ReadLine() (ts time.Time, data []byte, e error) {
 	row, e := c.r.Read()
 	if e != nil {
 		return util.DefaultTimestamp(), nil, e
 	}
 
 	// Extract timestamp
-	ts := row[c.p.tsColumn]
-	pts, e := time.Parse(c.p.tsFormat, ts)
+	v := row[c.p.tsColumn]
+	ts, e = time.Parse(c.p.tsFormat, v)
 	if e != nil {
 		return util.DefaultTimestamp(), nil, e
 	}
@@ -71,14 +71,14 @@ func (c *CSVReader) ReadLine() (time.Time, []byte, error) {
 	}
 
 	// Convert to json
-	j, e := json.Marshal(rec)
+	data, e = json.Marshal(rec)
 	if e != nil {
 		return util.DefaultTimestamp(), nil, fmt.Errorf("unable to convert csv record to json: %s", e)
 	}
-	return pts, j, e
+	return ts, data, e
 }
 
-// Parses header and return serial number of timestamp column
+// parseSchema parses header and returns serial number of a timestamp column
 func parseSchema(headers []string, col string) (int, error) {
 	t := -1
 	for i, c := range headers {

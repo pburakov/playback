@@ -17,10 +17,7 @@ import (
 	"time"
 )
 
-// PubSub playback program
-//
-// Example usage:
-// ./playback -i test_data.csv -p spotify-payment-risk-sandbox -c Creation_Date -f '2006-01-02 15:04:05 UTC' -t billing-events-sandbox
+// Playback program runner.
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
 	rand.Seed(time.Now().Unix())
@@ -55,6 +52,8 @@ func initReader(c *config.ProgramConfig) file.Reader {
 	return r
 }
 
+// initTopic constructs PubSub clients, verify if given PubSub topic exists
+// and constructs Topic instance.
 func initTopic(c *config.ProgramConfig) *pubsub.Topic {
 	ctx1, c1 := context.WithTimeout(context.Background(), c.Timeout)
 	defer c1()
@@ -71,6 +70,8 @@ func initTopic(c *config.ProgramConfig) *pubsub.Topic {
 	return t
 }
 
+// initPlayback initiates configured playback mode. Log messages are printed before
+// and after the playback is performed.
 func initPlayback(in file.Reader, action func(time.Time, []byte), c *config.ProgramConfig) {
 	log.Print("Starting playback...")
 

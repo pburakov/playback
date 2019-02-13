@@ -35,16 +35,11 @@ func Init(path string, colName string, tsFormat string) (*AvroReader, error) {
 	}
 
 	log.Printf("Loading avro file %q (compression algorithm %q)", path, r.CompressionName())
-	log.Print(`
-------------------------------------------------
-WARNING: Avro support is limited to binary data!
-------------------------------------------------
-	`)
 
 	return &AvroReader{r: r, p: &properties{tsColumn: colName, tsFormat: tsFormat}}, nil
 }
 
-func (a *AvroReader) ReadLine() (time.Time, []byte, error) {
+func (a *AvroReader) ReadLine() (ts time.Time, data []byte, e error) {
 	s := a.r.Scan()
 	if s == false {
 		return util.DefaultTimestamp(), nil, io.EOF
@@ -60,11 +55,12 @@ func (a *AvroReader) ReadLine() (time.Time, []byte, error) {
 		if e != nil {
 			return ts, nil, e
 		}
-		b, e := a.r.Codec().BinaryFromNative(nil, r)
-		return ts, b, e
+		data, e := a.r.Codec().BinaryFromNative(nil, r)
+		return ts, data, e
 	}
 }
 
+// extractTimestamp makes best guess about timestamp type and deserializes it.
 func extractTimestamp(m map[string]interface{}, col string, format string) (time.Time, error) {
 	ets := time.Unix(0, 0)
 	if val, found := m[col]; !found {
