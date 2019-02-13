@@ -14,7 +14,7 @@ import (
 
 type properties struct {
 	headers  []string
-	tsColumn int
+	tsColumn string
 	tsFormat string
 }
 
@@ -40,28 +40,39 @@ func Init(path string, colName string, tsFormat string) (*CSVReader, error) {
 		return nil, e
 	}
 
-	t, e := parseSchema(line, colName)
-	if e != nil {
-		return nil, e
-	}
-
-	log.Printf("Using column %q (%d) as timestamp column", colName, t)
-
-	return &CSVReader{r: r, p: &properties{headers: line, tsColumn: t, tsFormat: tsFormat}}, nil
+	return &CSVReader{r: r, p: &properties{headers: line, tsColumn: colName, tsFormat: tsFormat}}, nil
 }
 
 // ReadLine returns CSV entry as a serialized JSON k-v object.
-func (c *CSVReader) ReadLine() (ts time.Time, data []byte, e error) {
+func (c *CSVReader) ReadLineWithTS() (ts time.Time, data []byte, e error) {
 	row, e := c.r.Read()
 	if e != nil {
 		return util.DefaultTimestamp(), nil, e
 	}
 
-	// Extract timestamp
-	v := row[c.p.tsColumn]
-	ts, e = time.Parse(c.p.tsFormat, v)
+	// Build map
+	rec := make(map[string]string)
+	for i, h := range c.p.headers {
+		rec[h] = row[i]
+	}
+
+	ts, e = extractTimestamp(rec, c.p.tsColumn, c.p.tsFormat)
 	if e != nil {
 		return util.DefaultTimestamp(), nil, e
+	}
+
+	// Convert to json
+	data, e = json.Marshal(rec)
+	if e != nil {
+		return util.DefaultTimestamp(), nil, fmt.Errorf("unable to convert csv record to json: %s", e)
+	}
+	return ts, data, e
+}
+
+func (c *CSVReader) ReadLine() (data []byte, e error) {
+	row, e := c.r.Read()
+	if e != nil {
+		return nil, e
 	}
 
 	// Build map
@@ -73,21 +84,20 @@ func (c *CSVReader) ReadLine() (ts time.Time, data []byte, e error) {
 	// Convert to json
 	data, e = json.Marshal(rec)
 	if e != nil {
-		return util.DefaultTimestamp(), nil, fmt.Errorf("unable to convert csv record to json: %s", e)
+		return nil, fmt.Errorf("unable to convert csv record to json: %s", e)
 	}
-	return ts, data, e
+	return data, e
 }
 
-// parseSchema parses header and returns serial number of a timestamp column
-func parseSchema(headers []string, col string) (int, error) {
-	t := -1
-	for i, c := range headers {
-		if c == col {
-			t = i
+// extractTimestamp extracts timestamp from a mapped row.
+func extractTimestamp(row map[string]string, col string, format string) (time.Time, error) {
+	if v, found := row[col]; !found {
+		return util.DefaultTimestamp(), fmt.Errorf("invalid timestamp column %q", col)
+	} else {
+		ts, e := time.Parse(format, v)
+		if e != nil {
+			return util.DefaultTimestamp(), e
 		}
+		return ts, nil
 	}
-	if t == -1 {
-		return -1, fmt.Errorf("invalid timestamp column %q", col)
-	}
-	return t, nil
 }
