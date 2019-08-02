@@ -30,14 +30,16 @@ Go will download the dependencies and compile `playback` binary which can be ran
 
 ## Usage
 
+Basic usage: 
+
 ```
-$ playback -i <input_file> -c <ts_column> -p <output_gcp_project> -t <pubsub_topic> [args...] 
+$ playback -input=<input_file> -ts_column=<ts_column> -project_id=<output_gcp_project> -topic=<pubsub_topic> [args...] 
 ```
 
-Example:
+Advanced example:
 
 ```bash
-$ playback -m 2 -w 1000 -i data.json -c created_at -p my-project -t my-topic 
+$ playback -mode=2 -window=1000 -input=data.json -ts_column=created_at -p=my-project -t=my-topic 
 ``` 
 
 To access default values and detailed info on program arguments in your shell, run:  
@@ -60,18 +62,18 @@ It is important to note that all modes (and instant mode is the most vulnerable)
 
 ## Settings
 
-| Flag | Type | Required | Description |
-|------|------|----------|-------------|
-| `i` | string | true | Path to input file. Supported formats: JSON (newline delimited), CSV and Avro.
-| `p` | string | true | Output Google Cloud project id. |
-| `t` | string | true | Output PubSub topic. |
-| `m` | int | false | Playback mode: `0` - paced (default), `1` - instant, and `2` - relative. |
-| `c` | string | false | Name of the timestamp column for relative playback mode. The input data must be sorted by that column. |
-| `f` | string | false | Timestamp format for relative playback mode. Layouts must use the reference time Mon Jan 2 15:04:05 MST 2006 to show the pattern with which to format/parse a given time/string. Refer to this [documentation](https://golang.org/pkg/time/#pkg-constants) for more detail. |
-| `d` | int | false | Delay between line reads for paced playback, in milliseconds. | 
-| `w` | int | false | Event accumulation window for relative playback mode, in milliseconds. Use higher values if input event distribution on the timeline is sparse, lower values for a more dense event distribution. |
-| `j` | int | false | Max jitter for relative and paced playback modes, in milliseconds. | 
-| `o` | int | false | Publish request timeout, in milliseconds. |
+| Flag | Type | Mode | Required | Description |
+|------|------|------|----------|-------------|
+| `mode` | int | - | false | Playback mode: `0` - paced (default), `1` - instant, and `2` - relative. |
+| `input` | string | all | true | Path to the input file. Supported formats: JSON (newline delimited), CSV and Avro.
+| `project_id` | string | all | true | Output Google Cloud project id. |
+| `topic` | string | all | true | Output PubSub topic. |
+| `ts_column` | string | Relative | true | Name of the timestamp column for relative playback mode. The input data must be sorted by that column. |
+| `format` | string | Relative | false | Timestamp format for relative playback mode. Layouts must use the reference time Mon Jan 2 15:04:05 MST 2006 to show the pattern with which to parse a given string. Refer to this [documentation](https://golang.org/pkg/time/#pkg-constants) for more detail. |
+| `delay` | int | Paced | false | Delay between line reads for paced playback, in milliseconds. | 
+| `window` | int | all | false | Event accumulation window for relative playback mode, in milliseconds. Use higher values if input event distribution on the timeline is sparse, lower values for a more dense event distribution. |
+| `jitter` | int | all | false | Max jitter for relative and paced playback modes, in milliseconds. | 
+| `timeout` | int | all | false | Publish request timeout, in milliseconds. |
 
 ## Known Bugs and Limitations
 
