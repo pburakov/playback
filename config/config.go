@@ -54,7 +54,7 @@ func Init() *ProgramConfig {
 	fMode := flag.Uint("mode", 0, "Playback mode: 0 - paced, 1 - instant, 2 - relative.")
 	fPath := flag.String("input", "", "Path to input file. Supported formats: JSON (newline delimited), CSV and Avro.")
 	fColName := flag.String("ts_column", "", "Name of the timestamp column for relative playback mode. The input data must be sorted by that column.")
-	fTSFormat := flag.String("format", DefaultTSFormat, "Timestamp format for relative playback mode. Layouts must use the reference time Mon Jan 2 15:04:05 MST 2006 to show the pattern with which to format/parse a given time/string.")
+	fTSFormat := flag.String("ts_format", DefaultTSFormat, "Timestamp format for relative playback mode. Layouts must use the reference time Mon Jan 2 15:04:05 MST 2006 to show the pattern with which to format/parse a given time/string.")
 	fProjectID := flag.String("project_id", "", "Output Google Cloud project id.")
 	fTopic := flag.String("topic", "", "Output PubSub topic.")
 	fWindowMSec := flag.Uint("window", DefaultWindowMSec, "Event accumulation window for relative playback mode, in milliseconds. Use higher values if input event distribution on the timeline is sparse, lower values for a more dense event distribution.")

@@ -69,7 +69,7 @@ It is important to note that all modes (and instant mode is the most vulnerable)
 | `project_id` | string | all | true | Output Google Cloud project id. |
 | `topic` | string | all | true | Output PubSub topic. |
 | `ts_column` | string | Relative | true | Name of the timestamp column for relative playback mode. The input data must be sorted by that column. |
-| `format` | string | Relative | false | Timestamp format for relative playback mode. Layouts must use the reference time Mon Jan 2 15:04:05 MST 2006 to show the pattern with which to parse a given string. Refer to this [documentation](https://golang.org/pkg/time/#pkg-constants) for more detail. |
+| `ts_format` | string | Relative | false | Timestamp format for relative playback mode. Layouts must use the reference time Mon Jan 2 15:04:05 MST 2006 to show the pattern with which to parse a given string. Refer to this [documentation](https://golang.org/pkg/time/#pkg-constants) for more detail. |
 | `delay` | int | Paced | false | Delay between line reads for paced playback, in milliseconds. | 
 | `window` | int | all | false | Event accumulation window for relative playback mode, in milliseconds. Use higher values if input event distribution on the timeline is sparse, lower values for a more dense event distribution. |
 | `jitter` | int | all | false | Max jitter for relative and paced playback modes, in milliseconds. | 
