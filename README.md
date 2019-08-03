@@ -4,10 +4,10 @@ CLI tool for "replaying" events from local file into PubSub topic.
 
 ## Description
 
-Playback tool provides flexible and easy-to-setup way of replaying data stream into a PubSub topic. Intended and typical use cases for the Playback tool include:
+Playback tool provides flexible ways of replaying a data stream into a PubSub topic packaged in a single binary. Intended and typical use cases for the Playback tool include:
  - A/B testing of streaming pipelines and data ingestion services;
- - real time playback of [Dataflow streams](https://console.cloud.google.com/dataflow/createjob) dumped to GCS using the "Cloud Pub/Sub to Text Files on Cloud Storage" template;
- - streaming of data dumped from BigQuery/SQL tables into Pub/Sub without using Dataflow.
+ - streaming of data dumped from BigQuery/SQL tables into Pub/Sub without using Dataflow;
+ - real time playback of [Dataflow streams](https://console.cloud.google.com/dataflow/createjob) dumped to GCS using the "Cloud Pub/Sub to Text Files on Cloud Storage" template.
 
 ## Installation
 
@@ -30,14 +30,16 @@ Go will download the dependencies and compile `playback` binary which can be ran
 
 ## Usage
 
+Basic usage: 
+
 ```
-$ playback -i <input_file> -c <ts_column> -p <output_gcp_project> -t <pubsub_topic> [args...] 
+$ playback -input=<input_file> -ts_column=<ts_column> -project_id=<output_gcp_project> -topic=<pubsub_topic> [args...] 
 ```
 
-Example:
+Advanced example:
 
 ```bash
-$ playback -m 2 -w 1000 -i data.json -c created_at -p my-project -t my-topic 
+$ playback -mode=2 -window=1000 -input=data.json -ts_column=created_at -p=my-project -t=my-topic 
 ``` 
 
 To access default values and detailed info on program arguments in your shell, run:  
@@ -50,30 +52,33 @@ $ playback --help
 
 Playback tool provides 3 modes of operation: paced (default), instant and relative. 
 
-- In **paced mode**, messages are played back one by one at configurable equal intervals with an original event timestamp bypassed. Paced mode is useful for limiting throughput and maintaining order of events in the output.
+- In **relative mode**, the relative distance between two consecutive event timestamps is closely maintained. This mode is useful for emulating or replaying real-time traffic. Relative mode is comparatively more expensive, since the input row has to be first parsed and searched for the timestamp. For predictable results, the input data must be sorted by the timestamp column, defined as a program argument (see [Settings](#settings)).
 
-- In **relative mode** the relative difference between consecutive event  timestamps is maintained. This mode is useful for emulating or replaying real-world traffic. Relative mode is comparatively more expensive, since the input row has to be first parsed and searched for the timestamp. For predictable results, the input data must be sorted by the timestamp column which is defined by program arguments (see [Settings](#settings)).
+- In **paced mode**, messages are played back one by one at configurable equal intervals with the original event timestamp being ignored. Paced mode is useful for limiting throughput and maintaining order of events in the output.
 
-- In **instant mode**, the input data is sent immediately without delay after read with an original event timestamp bypassed. This is the most resource-demanding mode of operation, recommended only when the total number of events is relatively small. Consider using [Dataflow template](https://console.cloud.google.com/dataflow/createjob) named "Text Files Cloud Storage to Cloud Pub/Sub" as an alternative.
+- In **instant mode**, the input data is sent immediately with the original event timestamp being ignored. This is the most resource-demanding mode of operation, recommended only when the total number of events is relatively small. Consider using [Dataflow template](https://console.cloud.google.com/dataflow/createjob) named "Text Files Cloud Storage to Cloud Pub/Sub" as a scalable alternative.
 
-It is important to note that all modes (and instant mode is the most vulnerable) are subject to input / output constraints, CPU, available memory, event payload size and network throughput. Throttling is not implemented. It is not guaranteed that outgoing messages will reach PubSub at the specified timestamp, or in the specified order.
+It is important to note that all modes (and instant mode is the most vulnerable) are subject to IO constraints, CPU, available memory, event payload size and network throughput. Throttling is not implemented. It is not guaranteed that outgoing messages will reach PubSub at the specified timestamp, or in the specified order.
 
 ## Settings
 
-| Flag | Type | Required | Description |
-|------|------|----------|-------------|
-| `i` | string | true | Path to input file. Supported formats: JSON (newline delimited), CSV and Avro.
-| `p` | string | true | Output Google Cloud project id. |
-| `t` | string | true | Output PubSub topic. |
-| `m` | int | false | Playback mode: `0` - paced (default), `1` - instant, and `2` - relative. |
-| `c` | string | false | Name of the timestamp column for relative playback mode. The input data must be sorted by that column. |
-| `f` | string | false | Timestamp format for relative playback mode. Layouts must use the reference time Mon Jan 2 15:04:05 MST 2006 to show the pattern with which to format/parse a given time/string. Refer to this [documentation](https://golang.org/pkg/time/#pkg-constants) for more detail. |
-| `d` | int | false | Delay between line reads for paced playback, in milliseconds. | 
-| `w` | int | false | Event accumulation window for relative playback mode, in milliseconds. Use higher values if input event distribution on the timeline is sparse, lower values for a more dense event distribution. |
-| `j` | int | false | Max jitter for relative and paced playback modes, in milliseconds. | 
-| `o` | int | false | Publish request timeout, in milliseconds. |
+| Flag | Type | Mode | Required | Description |
+|------|------|------|----------|-------------|
+| `mode` | int | - | false | Playback mode: `0` - paced (default), `1` - instant, and `2` - relative. |
+| `input` | string | all | true | Path to the input file. Supported formats: JSON (newline delimited), CSV and Avro.
+| `project_id` | string | all | true | Output Google Cloud project id. |
+| `topic` | string | all | true | Output PubSub topic. |
+| `ts_column` | string | Relative | true | Name of the timestamp column for relative playback mode. The input data must be sorted by that column. |
+| `format` | string | Relative | false | Timestamp format for relative playback mode. Layouts must use the reference time Mon Jan 2 15:04:05 MST 2006 to show the pattern with which to parse a given string. Refer to this [documentation](https://golang.org/pkg/time/#pkg-constants) for more detail. |
+| `delay` | int | Paced | false | Delay between line reads for paced playback, in milliseconds. | 
+| `window` | int | all | false | Event accumulation window for relative playback mode, in milliseconds. Use higher values if input event distribution on the timeline is sparse, lower values for a more dense event distribution. |
+| `jitter` | int | all | false | Max jitter for relative and paced playback modes, in milliseconds. | 
+| `timeout` | int | all | false | Publish request timeout, in milliseconds. |
 
-_More detailed info to be added_
+## Known Bugs and Limitations
+
+- Using timestamp field within a nested structure is not currently supported.
+- Messages are occasionally truncated when using JSON data fields. 
 
 ## Supported Formats
 
