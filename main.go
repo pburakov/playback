@@ -8,10 +8,11 @@ import (
 	"log"
 	"math/rand"
 	"playback/config"
-	"playback/file"
-	"playback/file/avro"
-	"playback/file/csv"
-	"playback/file/json"
+	"playback/input"
+	"playback/input/avro"
+	"playback/input/csv"
+	"playback/input/json"
+	"playback/output"
 	"playback/runner"
 	"playback/util"
 	"time"
@@ -24,14 +25,15 @@ func main() {
 
 	c := config.Init()
 
-	r := initReader(c)
+	in := initReader(c)
 	t := initTopic(c)
+	out := initOutput(t, c)
 
-	initPlayback(r, runner.Output(t, c), c)
+	initPlayback(in, out, c)
 }
 
-func initReader(c *config.ProgramConfig) file.Reader {
-	var r file.Reader
+func initReader(c *config.ProgramConfig) input.FileReader {
+	var r input.FileReader
 	var e error
 	switch c.FileType {
 	case config.CSV:
@@ -75,7 +77,7 @@ func initTopic(c *config.ProgramConfig) *pubsub.Topic {
 
 // initPlayback initiates configured playback mode. Log messages are printed before
 // and after the playback is performed.
-func initPlayback(in file.Reader, out func(string, []byte), c *config.ProgramConfig) {
+func initPlayback(in input.FileReader, out func(string, []byte), c *config.ProgramConfig) {
 	switch c.Mode {
 	case config.Instant:
 		log.Printf("Starting playback in instant mode...")
@@ -92,4 +94,11 @@ func initPlayback(in file.Reader, out func(string, []byte), c *config.ProgramCon
 	}
 
 	log.Print("Playback stopped")
+}
+
+// initOutput returns preconfigured publishing action function.
+func initOutput(t *pubsub.Topic, c *config.ProgramConfig) func(string, []byte) {
+	return func(id string, d []byte) {
+		output.Publish(t, id, d, c.Timeout)
+	}
 }
