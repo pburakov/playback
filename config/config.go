@@ -27,7 +27,7 @@ const (
 )
 
 const (
-	DefaultTSFormat    = "2006-01-02T15:04:05.999999"
+	DefaultTSFormat    = "2006-01-02T15:04:05.999999Z07:00"
 	DefaultTimeoutMSec = 5000
 	DefaultWindowMSec  = 250
 	DefaultJitterMSec  = 100
