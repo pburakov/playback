@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"playback/file"
+	"playback/input"
 	"playback/util"
 	"time"
 )
@@ -23,7 +23,7 @@ type CSVReader struct {
 	p *properties
 }
 
-var _ file.Reader = (*CSVReader)(nil)
+var _ input.FileReader = (*CSVReader)(nil)
 
 func Init(path string, colName string, tsFormat string) (*CSVReader, error) {
 	f, e := os.Open(path)
