@@ -39,7 +39,7 @@ $ playback -input=<input_file> -ts_column=<ts_column> -project_id=<output_gcp_pr
 Advanced example:
 
 ```bash
-$ playback -mode=2 -window=1000 -input=data.json -ts_column=created_at -p=my-project -t=my-topic 
+$ playback -mode=2 -window=1000 -input=data.json -ts_column=created_at -project_id=my-project -topic=my-topic 
 ``` 
 
 To access default values and detailed info on program arguments in your shell, run:  
