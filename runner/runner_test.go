@@ -45,7 +45,7 @@ func TestPlayPaced(t *testing.T) {
 func testOutput(expected string, success chan bool) func(string, []byte) {
 	return func(s string, b []byte) {
 		if string(b) == expected {
-			log.Print("received test message")
+			log.Printf("published test message (%s)", s)
 			success <- true
 		}
 	}
