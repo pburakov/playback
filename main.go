@@ -98,7 +98,7 @@ func initPlayback(in input.FileReader, out func(string, []byte), c *config.Progr
 
 // initOutput returns preconfigured publishing action function.
 func initOutput(t *pubsub.Topic, c *config.ProgramConfig) func(string, []byte) {
-	return func(id string, d []byte) {
-		output.Publish(t, id, d, c.Timeout)
+	return func(tag string, d []byte) {
+		output.Publish(t, tag, d, c.Timeout)
 	}
 }
