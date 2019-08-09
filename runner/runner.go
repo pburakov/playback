@@ -1,13 +1,12 @@
 package runner
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"playback/input"
 	"playback/util"
-	"strconv"
 	"sync"
-	"sync/atomic"
 	"time"
 )
 
@@ -30,7 +29,7 @@ func PlayRelative(in input.FileReader, action func(string, []byte), lh time.Dura
 	var wg sync.WaitGroup
 
 	for {
-		ts, d, e := in.ReadLineWithTS()
+		ts, line, e := in.ReadLineWithTS()
 		if e == io.EOF {
 			break
 		}
@@ -52,10 +51,10 @@ func PlayRelative(in input.FileReader, action func(string, []byte), lh time.Dura
 		}
 
 		wg.Add(1)
-		go func() {
-			action("ts "+ts.String(), d)
+		go func(t time.Time, d []byte) {
+			action("timestamp="+t.String(), d)
 			wg.Done()
-		}()
+		}(ts, line)
 	}
 	wg.Wait()
 }
@@ -76,7 +75,7 @@ func PlayPaced(in input.FileReader, action func(string, []byte), del time.Durati
 		del, util.MSecToDuration(mjMSec))
 
 	for {
-		d, e := in.ReadLine()
+		line, e := in.ReadLine()
 		if e == io.EOF {
 			break
 		}
@@ -86,12 +85,11 @@ func PlayPaced(in input.FileReader, action func(string, []byte), del time.Durati
 		}
 
 		wg.Add(1)
-		atomic.AddUint64(&i, 1)
-
-		go func() {
-			action(strconv.FormatUint(i, 10), d)
+		i++
+		go func(i uint64, d []byte) {
+			action(fmt.Sprintf("no=%d", i), d)
 			wg.Done()
-		}()
+		}(i, line)
 
 		jitter := util.Jitter(mjMSec)
 		time.Sleep(time.Duration(jitter.Nanoseconds() + del.Nanoseconds()))
@@ -111,7 +109,7 @@ func PlayInstant(in input.FileReader, action func(string, []byte)) {
 	var i uint64 = 0
 
 	for {
-		d, e := in.ReadLine()
+		line, e := in.ReadLine()
 		if e == io.EOF {
 			break
 		}
@@ -121,12 +119,11 @@ func PlayInstant(in input.FileReader, action func(string, []byte)) {
 		}
 
 		wg.Add(1)
-		atomic.AddUint64(&i, 1)
-
-		go func(i uint64) {
-			action(strconv.FormatUint(i, 10), d)
+		i++
+		go func(i uint64, d []byte) {
+			action(fmt.Sprintf("no=%d", i), d)
 			wg.Done()
-		}(i)
+		}(i, line)
 	}
 	wg.Wait()
 }
