@@ -32,7 +32,7 @@ func Init(path string, colName string, tsFormat string) (*JSONReader, error) {
 }
 
 func (j *JSONReader) ReadLineWithTS() (ts time.Time, data []byte, e error) {
-	data, _, e = j.r.ReadLine()
+	data, e = j.r.ReadBytes('\n')
 	if e != nil {
 		return util.DefaultTimestamp(), nil, e
 	}
@@ -53,6 +53,6 @@ func (j *JSONReader) ReadLineWithTS() (ts time.Time, data []byte, e error) {
 }
 
 func (j *JSONReader) ReadLine() (data []byte, e error) {
-	data, _, e = j.r.ReadLine()
+	data, e = j.r.ReadBytes('\n')
 	return data, e
 }
