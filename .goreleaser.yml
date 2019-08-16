@@ -27,6 +27,8 @@ brews:
     github:
       owner: pburakov
       name: homebrew-io
+    homepage: "https://github.com/pburakov/playback/"
+    description: "CLI tool for replaying events from local file into PubSub topic in real-time."
     commit_author:
       name: Paul Burakov
       email: pburakov@gmail.com
