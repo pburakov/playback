@@ -78,7 +78,6 @@ It is important to note that all modes (and instant mode is the most vulnerable)
 ## Known Bugs and Limitations
 
 - Using timestamp field within a nested structure is not currently supported.
-- Messages are occasionally truncated when using JSON data fields. 
 
 ## Supported Formats
 

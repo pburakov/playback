@@ -29,7 +29,7 @@ func PlayRelative(in input.FileReader, action func(string, []byte), lh time.Dura
 	var wg sync.WaitGroup
 
 	for {
-		ts, line, e := in.ReadLineWithTS()
+		ts, buf, e := in.ReadLineWithTS()
 		if e == io.EOF {
 			break
 		}
@@ -54,7 +54,7 @@ func PlayRelative(in input.FileReader, action func(string, []byte), lh time.Dura
 		go func(t time.Time, d []byte) {
 			action("timestamp="+t.String(), d)
 			wg.Done()
-		}(ts, line)
+		}(ts, copyBuffer(buf))
 	}
 	wg.Wait()
 }
@@ -75,7 +75,7 @@ func PlayPaced(in input.FileReader, action func(string, []byte), del time.Durati
 		del, util.MSecToDuration(mjMSec))
 
 	for {
-		line, e := in.ReadLine()
+		buf, e := in.ReadLine()
 		if e == io.EOF {
 			break
 		}
@@ -89,7 +89,7 @@ func PlayPaced(in input.FileReader, action func(string, []byte), del time.Durati
 		go func(i uint64, d []byte) {
 			action(fmt.Sprintf("no=%d", i), d)
 			wg.Done()
-		}(i, line)
+		}(i, copyBuffer(buf))
 
 		jitter := util.Jitter(mjMSec)
 		time.Sleep(time.Duration(jitter.Nanoseconds() + del.Nanoseconds()))
@@ -109,7 +109,7 @@ func PlayInstant(in input.FileReader, action func(string, []byte)) {
 	var i uint64 = 0
 
 	for {
-		line, e := in.ReadLine()
+		buf, e := in.ReadLine()
 		if e == io.EOF {
 			break
 		}
@@ -123,7 +123,13 @@ func PlayInstant(in input.FileReader, action func(string, []byte)) {
 		go func(i uint64, d []byte) {
 			action(fmt.Sprintf("no=%d", i), d)
 			wg.Done()
-		}(i, line)
+		}(i, copyBuffer(buf))
 	}
 	wg.Wait()
+}
+
+func copyBuffer(buf []byte) []byte {
+	flush := make([]byte, len(buf))
+	copy(flush, buf)
+	return flush
 }
