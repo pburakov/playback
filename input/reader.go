@@ -1,8 +1,8 @@
-package file
+package input
 
 import "time"
 
-type Reader interface {
+type FileReader interface {
 	// ReadLineWithTS reads the next line from the input file, extracts the timestamp
 	// value and returns it with the binary data from the input line.
 	ReadLineWithTS() (ts time.Time, data []byte, e error)

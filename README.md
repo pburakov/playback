@@ -39,7 +39,7 @@ $ playback -input=<input_file> -ts_column=<ts_column> -project_id=<output_gcp_pr
 Advanced example:
 
 ```bash
-$ playback -mode=2 -window=1000 -input=data.json -ts_column=created_at -p=my-project -t=my-topic 
+$ playback -mode=2 -window=1000 -input=data.json -ts_column=created_at -project_id=my-project -topic=my-topic 
 ``` 
 
 To access default values and detailed info on program arguments in your shell, run:  
@@ -69,7 +69,7 @@ It is important to note that all modes (and instant mode is the most vulnerable)
 | `project_id` | string | all | true | Output Google Cloud project id. |
 | `topic` | string | all | true | Output PubSub topic. |
 | `ts_column` | string | Relative | true | Name of the timestamp column for relative playback mode. The input data must be sorted by that column. |
-| `format` | string | Relative | false | Timestamp format for relative playback mode. Layouts must use the reference time Mon Jan 2 15:04:05 MST 2006 to show the pattern with which to parse a given string. Refer to this [documentation](https://golang.org/pkg/time/#pkg-constants) for more detail. |
+| `ts_format` | string | Relative | false | Timestamp format for relative playback mode. Layouts must use the reference time Mon Jan 2 15:04:05 MST 2006 to show the pattern with which to parse a given string. Refer to this [documentation](https://golang.org/pkg/time/#pkg-constants) for more detail. |
 | `delay` | int | Paced | false | Delay between line reads for paced playback, in milliseconds. | 
 | `window` | int | all | false | Event accumulation window for relative playback mode, in milliseconds. Use higher values if input event distribution on the timeline is sparse, lower values for a more dense event distribution. |
 | `jitter` | int | all | false | Max jitter for relative and paced playback modes, in milliseconds. | 
@@ -78,7 +78,6 @@ It is important to note that all modes (and instant mode is the most vulnerable)
 ## Known Bugs and Limitations
 
 - Using timestamp field within a nested structure is not currently supported.
-- Messages are occasionally truncated when using JSON data fields. 
 
 ## Supported Formats
 
