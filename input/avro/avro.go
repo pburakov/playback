@@ -6,7 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
-	"playback/file"
+	"playback/input"
 	"playback/util"
 	"time"
 )
@@ -21,7 +21,7 @@ type AvroReader struct {
 	p *properties
 }
 
-var _ file.Reader = (*AvroReader)(nil)
+var _ input.FileReader = (*AvroReader)(nil)
 
 func Init(path string, colName string, tsFormat string) (*AvroReader, error) {
 	f, e := os.Open(path)

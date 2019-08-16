@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"playback/file"
+	"playback/input"
 	"playback/util"
 	"time"
 )
@@ -20,7 +20,7 @@ type JSONReader struct {
 	p *properties
 }
 
-var _ file.Reader = (*JSONReader)(nil)
+var _ input.FileReader = (*JSONReader)(nil)
 
 func Init(path string, colName string, tsFormat string) (*JSONReader, error) {
 	f, e := os.Open(path)
