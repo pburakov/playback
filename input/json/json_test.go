@@ -24,7 +24,7 @@ func TestInitAndReadLines(t *testing.T) {
 
 	ts, l, e := r.ReadLineWithTS()
 
-	expected := `{"foo":"1","bar":"2019-02-11T15:20:09.514626","baz":["1","2","3"],"faz":{"A":"foo","B":42.42}}`
+	expected := `{"foo":"1","bar":"2019-02-11T15:20:09.514626","baz":["1","2","3"],"faz":{"A":"foo","B":42.42}}` + "\n"
 
 	assert.NoError(t, e)
 	assert.Equal(t, time.Date(2019, 02, 11, 15, 20, 9, 514626000, time.UTC), ts)
@@ -32,7 +32,7 @@ func TestInitAndReadLines(t *testing.T) {
 
 	l, e = r.ReadLine()
 
-	expected = `{"foo":"2","bar":"2019-02-06T02:22:47.327394","baz":["4","5","6"],"faz":{"A":"moo","B":43.43}}`
+	expected = `{"foo":"2","bar":"2019-02-06T02:22:47.327394","baz":["4","5","6"],"faz":{"A":"moo","B":43.43}}` + "\n"
 
 	assert.NoError(t, e)
 	assert.Equal(t, expected, string(l))
