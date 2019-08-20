@@ -8,6 +8,7 @@ jobs:
       - image: circleci/golang:1.12
 
     steps:
+      - setup_remote_docker
       - checkout
 
       # specify any bash command here prefixed with `run: `
