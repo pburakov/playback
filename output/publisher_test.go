@@ -14,6 +14,9 @@ const (
 )
 
 func TestPublish(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in short mode.")
+	}
 	topic, sub := setup(t)
 
 	success := make(chan bool, 1)
