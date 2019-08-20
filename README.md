@@ -78,6 +78,7 @@ It is important to note that all modes (and instant mode is the most vulnerable)
 ## Known Bugs and Limitations
 
 - Using timestamp field within a nested structure is not currently supported.
+- Last message in JSON files will be skipped if there's no newline delimiter at the EOF. 
 
 ## Supported Formats
 
