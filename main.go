@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
 	"playback/config"
 	"playback/input"
 	"playback/input/avro"
@@ -21,6 +22,8 @@ import (
 // Playback program runner.
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
+	log.SetOutput(os.Stdout)
+
 	rand.Seed(time.Now().Unix())
 
 	c := config.Init()
