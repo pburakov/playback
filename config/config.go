@@ -49,18 +49,21 @@ type ProgramConfig struct {
 	Delay         time.Duration
 }
 
+var (
+	fMode        = flag.Uint("mode", 0, "Playback mode: 0 - paced, 1 - instant, 2 - relative.")
+	fPath        = flag.String("input", "", "Path to input file. Supported formats: JSON (newline delimited), CSV and Avro.")
+	fColName     = flag.String("ts_column", "", "Name of the timestamp column for relative playback mode. The input data must be sorted by that column.")
+	fTSFormat    = flag.String("ts_format", DefaultTSFormat, "Timestamp format for relative playback mode. Layouts must use the reference time Mon Jan 2 15:04:05 MST 2006 to show the pattern with which to format/parse a given time/string.")
+	fProjectID   = flag.String("project_id", "", "Output Google Cloud project id.")
+	fTopic       = flag.String("topic", "", "Output PubSub topic.")
+	fWindowMSec  = flag.Uint("window", DefaultWindowMSec, "Event accumulation window for relative playback mode, in milliseconds. Use higher values if input event distribution on the timeline is sparse, lower values for a more dense event distribution.")
+	fJitterMSec  = flag.Int("jitter", DefaultJitterMSec, "Max jitter for relative and paced playback, in milliseconds.")
+	fTimeoutMSec = flag.Uint("timeout", DefaultTimeoutMSec, "Publish request timeout, in milliseconds.")
+	fDelayMSec   = flag.Uint("delay", DefaultDelayMSec, "Delay between line reads for paced playback, in milliseconds.")
+)
+
 // InitConfig validates inputs and returns completed program configuration. Terminates on validation errors.
 func Init() *ProgramConfig {
-	fMode := flag.Uint("mode", 0, "Playback mode: 0 - paced, 1 - instant, 2 - relative.")
-	fPath := flag.String("input", "", "Path to input file. Supported formats: JSON (newline delimited), CSV and Avro.")
-	fColName := flag.String("ts_column", "", "Name of the timestamp column for relative playback mode. The input data must be sorted by that column.")
-	fTSFormat := flag.String("ts_format", DefaultTSFormat, "Timestamp format for relative playback mode. Layouts must use the reference time Mon Jan 2 15:04:05 MST 2006 to show the pattern with which to format/parse a given time/string.")
-	fProjectID := flag.String("project_id", "", "Output Google Cloud project id.")
-	fTopic := flag.String("topic", "", "Output PubSub topic.")
-	fWindowMSec := flag.Uint("window", DefaultWindowMSec, "Event accumulation window for relative playback mode, in milliseconds. Use higher values if input event distribution on the timeline is sparse, lower values for a more dense event distribution.")
-	fJitterMSec := flag.Int("jitter", DefaultJitterMSec, "Max jitter for relative and paced playback, in milliseconds.")
-	fTimeoutMSec := flag.Uint("timeout", DefaultTimeoutMSec, "Publish request timeout, in milliseconds.")
-	fDelayMSec := flag.Uint("delay", DefaultDelayMSec, "Delay between line reads for paced playback, in milliseconds.")
 	flag.Parse()
 
 	if len(*fProjectID) == 0 || len(*fTopic) == 0 {
