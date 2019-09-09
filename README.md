@@ -78,7 +78,7 @@ JSON and Avro formats guarantee schema compliance and support for nested structu
 
 ## Build
 
-With Go version 1.13 (or greater) installed, build the binary from the root of this repository by running:
+With Go version 1.12 (or greater) installed, build the binary from the root of this repository by running:
 
 ```bash
 $ go build
