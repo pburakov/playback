@@ -8,3 +8,7 @@ require (
 	github.com/testcontainers/testcontainers-go v0.0.0-20190207081624-4ed65004fe50
 	gopkg.in/linkedin/goavro.v1 v1.0.5 // indirect
 )
+
+replace git.apache.org/thrift.git => github.com/apache/thrift v0.0.0-20180902110319-2566ecd5d999
+
+go 1.12

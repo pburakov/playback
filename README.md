@@ -18,16 +18,6 @@ $ brew tap pburakov/io
 $ brew install pburakov/io/playback
 ```
 
-## Build
-
-Alternatively, with Go version 1.11.4 (or greater) installed, you can build the binary from the root of this repository by running:
-
-```bash
-$ go build
-```
-
-Go will download the dependencies and compile `playback` binary which can be ran from shell using `./playback`.
-
 ## Usage
 
 Basic usage: 
@@ -85,3 +75,13 @@ It is important to note that all modes (and instant mode is the most vulnerable)
 Playback tool supports JSON (newline delimited), CSV and Avro files, typically produced and consumed by Google BigQuery and Dataflow stack.
 
 JSON and Avro formats guarantee schema compliance and support for nested structures. While JSON and Avro events are published as is (byte-wise), CSV data is converted to JSON key-value object with strings as keys and values.
+
+## Build
+
+With Go version 1.12 (or greater) installed, build the binary from the root of this repository by running:
+
+```bash
+$ go build
+```
+
+Go will download the dependencies and compile `playback` binary which can be ran from shell using `./playback`.
