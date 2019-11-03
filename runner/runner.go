@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"playback/input"
-	"playback/util"
+	"pburakov.io/playback/input"
+	"pburakov.io/playback/util"
 	"sync"
 	"time"
 )
