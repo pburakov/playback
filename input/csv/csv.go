@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"playback/input"
-	"playback/util"
+	"pburakov.io/playback/input"
+	"pburakov.io/playback/util"
 	"time"
 )
 

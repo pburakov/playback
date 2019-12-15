@@ -4,7 +4,7 @@ package runner
 import (
 	"io"
 	"log"
-	"playback/input"
+	"pburakov.io/playback/input"
 	"testing"
 	"time"
 )

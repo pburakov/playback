@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"playback/util"
+	"pburakov.io/playback/util"
 )
 
 type Mode uint

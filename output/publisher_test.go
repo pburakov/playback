@@ -4,7 +4,7 @@ import (
 	"cloud.google.com/go/pubsub"
 	"context"
 	"github.com/stretchr/testify/assert"
-	"playback/test"
+	"pburakov.io/playback/test"
 	"testing"
 	"time"
 )
