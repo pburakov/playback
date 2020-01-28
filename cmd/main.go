@@ -59,7 +59,7 @@ func initReader(c *config.ProgramConfig) input.FileReader {
 	return r
 }
 
-// initTopic constructs PubSub clients, verify if given PubSub topic exists
+// initTopic constructs PubSub clients, verifies if given PubSub topic exists
 // and constructs Topic instance.
 func initTopic(c *config.ProgramConfig) *pubsub.Topic {
 	ctx1, c1 := context.WithTimeout(context.Background(), c.Timeout)
