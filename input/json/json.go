@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"pburakov.io/playback/input"
-	"pburakov.io/playback/util"
 	"time"
+
+	"github.com/pburakov/playback/input"
+	"github.com/pburakov/playback/util"
 )
 
 type properties struct {

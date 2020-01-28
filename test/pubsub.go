@@ -2,15 +2,16 @@
 package test
 
 import (
-	"cloud.google.com/go/pubsub"
 	"context"
 	"fmt"
-	"github.com/testcontainers/testcontainers-go"
-	"github.com/testcontainers/testcontainers-go/wait"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"cloud.google.com/go/pubsub"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 // PubsubTestContainer holds pubsub client for instantiated PubSub test-container

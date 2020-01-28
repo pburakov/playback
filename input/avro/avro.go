@@ -2,13 +2,14 @@ package avro
 
 import (
 	"fmt"
-	"github.com/linkedin/goavro"
 	"io"
 	"log"
 	"os"
-	"pburakov.io/playback/input"
-	"pburakov.io/playback/util"
 	"time"
+
+	"github.com/linkedin/goavro"
+	"github.com/pburakov/playback/input"
+	"github.com/pburakov/playback/util"
 )
 
 type properties struct {

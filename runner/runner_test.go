@@ -4,9 +4,10 @@ package runner
 import (
 	"io"
 	"log"
-	"pburakov.io/playback/input"
 	"testing"
 	"time"
+
+	"github.com/pburakov/playback/input"
 )
 
 const (
