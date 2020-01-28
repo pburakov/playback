@@ -1,12 +1,13 @@
 package output
 
 import (
-	"cloud.google.com/go/pubsub"
 	"context"
-	"github.com/stretchr/testify/assert"
-	"pburakov.io/playback/test"
 	"testing"
 	"time"
+
+	"cloud.google.com/go/pubsub"
+	"github.com/pburakov/playback/test"
+	"github.com/stretchr/testify/assert"
 )
 
 const (

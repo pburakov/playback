@@ -1,22 +1,23 @@
 package main
 
 import (
-	"cloud.google.com/go/pubsub"
 	"context"
 	"errors"
 	"fmt"
 	"log"
 	"math/rand"
 	"os"
-	"pburakov.io/playback/config"
-	"pburakov.io/playback/input"
-	"pburakov.io/playback/input/avro"
-	"pburakov.io/playback/input/csv"
-	"pburakov.io/playback/input/json"
-	"pburakov.io/playback/output"
-	"pburakov.io/playback/runner"
-	"pburakov.io/playback/util"
 	"time"
+
+	"cloud.google.com/go/pubsub"
+	"github.com/pburakov/playback/config"
+	"github.com/pburakov/playback/input"
+	"github.com/pburakov/playback/input/avro"
+	"github.com/pburakov/playback/input/csv"
+	"github.com/pburakov/playback/input/json"
+	"github.com/pburakov/playback/output"
+	"github.com/pburakov/playback/runner"
+	"github.com/pburakov/playback/util"
 )
 
 // Playback program runner.
@@ -58,7 +59,7 @@ func initReader(c *config.ProgramConfig) input.FileReader {
 	return r
 }
 
-// initTopic constructs PubSub clients, verify if given PubSub topic exists
+// initTopic constructs PubSub clients, verifies if given PubSub topic exists
 // and constructs Topic instance.
 func initTopic(c *config.ProgramConfig) *pubsub.Topic {
 	ctx1, c1 := context.WithTimeout(context.Background(), c.Timeout)

@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"pburakov.io/playback/input"
-	"pburakov.io/playback/util"
 	"sync"
 	"time"
+
+	"github.com/pburakov/playback/input"
+	"github.com/pburakov/playback/util"
 )
 
 // PlayRelative sets the window boundary to a lookahead duration value, reads the

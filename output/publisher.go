@@ -1,10 +1,11 @@
 package output
 
 import (
-	"cloud.google.com/go/pubsub"
 	"context"
 	"log"
 	"time"
+
+	"cloud.google.com/go/pubsub"
 )
 
 // Publish handles PubSub publishing procedure synchronously. Errors are ignored and logged.

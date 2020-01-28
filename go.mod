@@ -1,4 +1,4 @@
-module pburakov.io/playback
+module github.com/pburakov/playback
 
 require (
 	cloud.google.com/go v0.36.0
